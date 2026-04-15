@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ta">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetZon TN | Dogs & Seval Market</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #991b1b;
+            --primary-light: #fef2f2;
+            --accent: #fbbf24;
+            --accent-hover: #f59e0b;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --bg-main: #f9fafb;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --shadow-premium: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* Premium Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        .premium-nav {
+            background: rgba(153, 27, 27, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .category-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid #edf2f7;
+        }
+
+        .category-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px -15px rgba(153, 27, 27, 0.15);
+            border-color: var(--accent);
+        }
+
+        .category-card img {
+            transition: transform 0.6s ease;
+        }
+
+        .category-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .sidebar-active {
+            background: var(--primary);
+            color: white !important;
+            transform: translateX(5px);
+            box-shadow: 5px 5px 15px rgba(153, 27, 27, 0.2);
+        }
+
+        .glass-modal {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-premium {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .btn-premium::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translate(-50%, -50%) rotate(45deg) translateY(100%);
+            transition: transform 0.6s ease;
+        }
+
+        .btn-premium:hover::after {
+            transform: translate(-50%, -50%) rotate(45deg) translateY(-100%);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .cart-dot {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 font-sans">
+
+    <nav class="premium-nav text-white py-6 px-8 sticky top-0 z-50 shadow-2xl">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-3xl font-black italic tracking-tighter cursor-pointer hover:scale-105 transition-transform" onclick="goHome()">
+                PETZON <span class="text-yellow-400 font-bold">TN</span>
+            </h1>
+            <div class="flex gap-6 items-center">
+                <div class="relative cursor-pointer" onclick="toggleCart()">
+                    <i class="fa fa-shopping-cart text-2xl"></i>
+                    <span id="cartCount"
+                        class="absolute -top-2 -right-2 bg-yellow-400 text-red-900 text-[10px] font-bold rounded-full px-1.5 border-2 border-red-900">0</span>
+                </div>
+                <button id="authTriggerBtn" onclick="toggleAuth()"
+                    class="bg-white text-red-900 px-4 py-2 rounded-lg font-bold text-xs uppercase shadow-lg hover:bg-yellow-400 transition">Login</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto flex flex-col md:flex-row gap-6 p-4 mt-4">
+        <aside id="sidebar"
+            class="w-full md:w-1/4 bg-white rounded-2xl shadow-md h-fit overflow-hidden border border-gray-200">
+            <div class="p-5 border-b border-gray-100 bg-gray-50 font-black text-gray-700 uppercase text-sm">
+                <i class="fa fa-sliders mr-2"></i> Categories
+            </div>
+            <nav class="flex flex-col">
+                <button onclick="filterCategory('All')" id="btn-All"
+                    class="p-4 text-left font-bold hover:bg-red-50 transition sidebar-active">All Breeds</button>
+                <button onclick="filterCategory('Dog')" id="btn-Dog"
+                    class="p-4 text-left font-bold hover:bg-red-50 transition border-b border-gray-50 text-gray-600">Dogs
+                    / நாய்கள்</button>
+                <button onclick="filterCategory('Seval')" id="btn-Seval"
+                    class="p-4 text-left font-bold hover:bg-red-50 transition text-gray-600">Seval / சேவல்கள்</button>
+            </nav>
+        </aside>
+
+        <main id="contentArea" class="w-full md:w-3/4">
+            <h2 id="gridTitle" class="text-2xl font-black mb-6 text-red-900 uppercase italic">Available Pets</h2>
+            <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </main>
+
+        <main id="detailsPage" class="w-full md:w-3/4 hidden fade-in">
+            <button onclick="goHome()" class="mb-4 text-red-900 font-bold flex items-center gap-2 hover:underline">
+                <i class="fa fa-arrow-left"></i> Back to Home
+            </button>
+            <div id="petDetailContent"></div>
+        </main>
+    </div>
+
+    <div id="authModal"
+        class="fixed inset-0 bg-black/60 z-[200] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
+            <div class="bg-red-900 p-8 text-white text-center relative">
+                <button onclick="toggleAuth()" class="absolute top-4 right-4 text-white/50"><i
+                        class="fa fa-times"></i></button>
+                <h2 id="authTitle" class="text-2xl font-black italic uppercase">Login to <span
+                        class="text-yellow-400">PetZon</span></h2>
+            </div>
+            <form id="authForm" class="p-8 space-y-4">
+                <div id="nameField" class="hidden space-y-1">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Full Name</label>
+                    <input type="text" id="regName"
+                        class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl p-3 outline-none focus:border-red-900 transition"
+                        placeholder="Your Name">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Mobile Number</label>
+                    <input type="tel" id="userPhone" required
+                        class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl p-3 outline-none focus:border-red-900 transition"
+                        placeholder="9876543210">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Password</label>
+                    <input type="password" id="userPass" required
+                        class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl p-3 outline-none focus:border-red-900 transition"
+                        placeholder="••••••••">
+                </div>
+                <button type="submit" id="authBtn"
+                    class="w-full bg-red-900 text-white py-4 rounded-xl font-black tracking-widest hover:bg-black transition uppercase">Login</button>
+                <p id="toggleText" class="text-center text-xs text-gray-500 mt-4">New here? <button type="button"
+                        onclick="switchAuthMode()" class="text-red-900 font-bold hover:underline">Create
+                        Account</button></p>
+            </form>
+        </div>
+    </div>
+
+    <div id="paymentModal"
+        class="fixed inset-0 bg-black/80 z-[300] hidden flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl text-center relative">
+            <div class="bg-green-600 p-6 text-white">
+                <h2 class="text-xl font-black uppercase">UPI Payment</h2>
+            </div>
+            <div class="p-8 space-y-6">
+                <div class="bg-gray-100 p-4 rounded-2xl inline-block mx-auto border-4 border-dashed border-gray-200">
+                    <img id="upiQRCode" src="" alt="QR Code" class="w-48 h-48 mx-auto">
+                </div>
+                <div>
+                    <p class="text-gray-500 text-[10px] font-bold uppercase mb-1">Total Amount</p>
+                    <p id="payAmount" class="text-4xl font-black text-red-900">₹0</p>
+                </div>
+                <div class="flex flex-col gap-3">
+                    <a id="upiPayBtn" href="#"
+                        class="bg-blue-600 text-white py-4 rounded-xl font-black hover:bg-blue-700 transition flex items-center justify-center gap-2 uppercase">
+                        <i class="fa fa-mobile-screen"></i> Pay via UPI
+                    </a>
+                    <button onclick="closePayment()" class="text-gray-400 font-bold text-xs uppercase">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="cartSidebar"
+        class="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl z-[100] transform translate-x-full transition-transform duration-300 p-6 border-l">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-black text-red-900 uppercase">Your Cart</h2>
+            <button onclick="toggleCart()" class="text-gray-400"><i class="fa fa-times text-2xl"></i></button>
+        </div>
+        <div id="cartItems" class="space-y-4 max-h-[70vh] overflow-y-auto italic text-gray-400 text-center"></div>
+        <div class="absolute bottom-0 left-0 w-full p-6 border-t bg-gray-50">
+            <div class="flex justify-between mb-4"><span class="font-bold">Total:</span><span id="totalPrice"
+                    class="text-2xl font-black text-red-900">₹0</span></div>
+            <button onclick="checkout()"
+                class="w-full bg-red-900 text-white py-4 rounded-xl font-black hover:bg-black transition uppercase">Proceed
+                to Pay</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBV-4gbAbw8ssmY7wQZ_dANt3vp-d2rJ-A",
+            authDomain: "pet-zone-bb9be.firebaseapp.com",
+            projectId: "pet-zone-bb9be",
+            storageBucket: "pet-zone-bb9be.firebasestorage.app",
+            messagingSenderId: "110826525568",
+            appId: "1:110826525568:web:85a2b2550f782a7c4d6765",
+            measurementId: "G-WKWM2Z53RX"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let isLoginMode = true;
+
+        window.toggleAuth = () => document.getElementById('authModal').classList.toggle('hidden');
+        window.switchAuthMode = () => {
+            isLoginMode = !isLoginMode;
+            document.getElementById('authTitle').innerHTML = isLoginMode ? 'Login to <span class="text-yellow-400">PetZon</span>' : 'Create <span class="text-yellow-400">Account</span>';
+            document.getElementById('nameField').classList.toggle('hidden');
+            document.getElementById('authBtn').innerText = isLoginMode ? 'Login' : 'Register';
+            document.getElementById('toggleText').innerHTML = isLoginMode ?
+                'New here? <button type="button" onclick="switchAuthMode()" class="text-red-900 font-bold hover:underline">Create Account</button>' :
+                'Have account? <button type="button" onclick="switchAuthMode()" class="text-red-900 font-bold hover:underline">Login Now</button>';
+        };
+
+        document.getElementById('authForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const phone = document.getElementById('userPhone').value;
+            const pass = document.getElementById('userPass').value;
+            const name = document.getElementById('regName').value;
+            try {
+                if (isLoginMode) {
+                    const q = query(collection(db, "customers"), where("phone", "==", phone), where("password", "==", pass));
+                    const snap = await getDocs(q);
+                    if (!snap.empty) {
+                        alert("Welcome " + snap.docs[0].data().name);
+                        document.getElementById('authTriggerBtn').innerText = snap.docs[0].data().name;
+                        toggleAuth();
+                    } else alert("Invalid Login!");
+                } else {
+                    await addDoc(collection(db, "customers"), { name, phone, password: pass });
+                    alert("Account Created! Please Login."); switchAuthMode();
+                }
+            } catch (err) { alert("Firebase Rules Error!"); }
+        });
+    </script>
+
+    <script>
+        const allPets = [
+            // ── DOGS ──────────────────────────────────────────────────────────────
+            {
+                id: 1, name: "Rajapalayam Puppy", type: "Dog", price: 15000, loc: "Rajapalayam",
+                img: "https://www.mrnmrspet.com/Files/12026/521878202601161413502196.jpeg",
+                desc: "Pure white Rajapalayam puppy. Known for its bravery and loyalty. Best guard dog.",
+                food: "Rice with curd, boiled eggs, high-protein kibble.",
+                training: "Socialize early. Basic command training works best with rewards."
+            },
+            {
+                id: 3, name: "Combai Puppy", type: "Dog", price: 12000, loc: "Theni",
+                img: "https://www.thepetcareindia.com/assets/images/dog-world-img/best-kombai-dogs.webp",
+                desc: "Fierce and loyal Combai — a rare Tamil hunting dog with a reddish-brown coat and black mask. Excellent watchdog and family protector.",
+                food: "Boiled meat, rice with buttermilk, raw bones for dental health.",
+                training: "Firm and consistent training from puppyhood. Thrives with an experienced owner."
+            },
+            {
+                id: 4, name: "Chippiparai Dog", type: "Dog", price: 10000, loc: "Virudhunagar",
+                img: "https://th.bing.com/th/id/OIP.0K_ZdAKg4OAsOv3OwdwThQHaE8?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3",
+                desc: "Elegant and fast sighthound native to Tamil Nadu. Extremely loyal to one owner, low maintenance, and well-suited for the South Indian climate.",
+                food: "Lean meat, boiled eggs, rice. Avoid overfeeding — this breed stays lean naturally.",
+                training: "Leash training is a must due to high prey drive. Gentle positive reinforcement works best."
+            },
+            {
+                id: 5, name: "Kanni Puppy", type: "Dog", price: 9000, loc: "Tirunelveli",
+                img: "https://live.staticflickr.com/8253/8695296166_7d98352962_b.jpg",
+                desc: "The Kanni is a rare gift dog of Tamil Nadu, traditionally never sold. Sleek black-and-tan coat, incredibly swift and affectionate with family.",
+                food: "Home-cooked rice with fish or chicken curry, supplemented with kibble.",
+                training: "Sensitive breed — responds well to calm, reward-based training. Avoid harsh methods."
+            },
+
+            {
+                id: 2, name: "Kizhi Mooku Seval", type: "Seval", price: 8500, loc: "Thanjavur",
+                img: "https://i.ytimg.com/vi/ceT3lGjcduQ/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGGUgWShJMA8=&rs=AOn4CLDmuubFHqvFfkyW-wUGFBK_zN4U0Q",
+                desc: "High-quality Aseel rooster. Strong build and healthy bloodline.",
+                food: "Pearl millet (Kambu), sprouted grains, protein mix.",
+                training: "Stamina building exercises and morning sunlight exposure."
+            },
+            {
+                id: 6, name: "kattu  Seval", type: "Seval", price: 3500, loc: "Madurai",
+                img: "https://t4.ftcdn.net/jpg/04/75/54/77/360_F_475547784_9k0iLtsxYgcOSuaNoTsJlZuCPABgK7k0.jpg",
+                desc: "Country breed rooster raised free-range. Vibrant plumage, strong immune system, great for poultry farming and village households.",
+                food: "Broken corn, rice bran, green leafy scraps, insects. Very low-cost feeding.",
+                training: "Minimal handling needed. Acclimatizes naturally to open yard environments."
+            },
+            {
+                id: 7, name: "Vethu kal Seval", type: "Seval", price: 6000, loc: "7kPannai",
+                img: "https://i.ytimg.com/vi/HtDI7vN3ukI/maxresdefault.jpg",
+                desc: "Premium all-black Kadaknath rooster — black feathers, black skin, black meat. High medicinal value and protein content. Rare and sought-after breed.",
+                food: "High-protein grain mix, maize, sorghum, and mineral supplements.",
+                training: "Keep in spacious pen. Morning free-range helps maintain stamina and reduces stress."
+            }
+        ];
+
+        let cart = [];
+        const MY_UPI_ID = "yourname@okicici";
+
+        function displayItems(items) {
+            document.getElementById('productGrid').innerHTML = items.map(p => `
+                <div onclick="showDetails(${p.id})" class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl transition category-card">
+                    <img src="${p.img}" class="w-full h-48 object-cover">
+                    <div class="p-5">
+                        <h3 class="font-black text-lg">${p.name}</h3>
+                        <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">${p.loc}, TN</p>
+                        <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-50">
+                            <span class="text-xl font-black text-red-900">₹${p.price.toLocaleString()}</span>
+                            <span class="text-red-900 font-bold text-[10px] uppercase">Details ></span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showDetails(id) {
+            const p = allPets.find(i => i.id === id);
+            document.getElementById('contentArea').classList.add('hidden');
+            document.getElementById('sidebar').classList.add('hidden');
+            document.getElementById('detailsPage').classList.remove('hidden');
+
+            document.getElementById('petDetailContent').innerHTML = `
+                <div class="bg-white rounded-3xl overflow-hidden shadow-xl border flex flex-col md:flex-row">
+                    <div class="md:w-1/2"><img src="${p.img}" class="w-full h-96 object-cover"></div>
+                    <div class="md:w-1/2 p-8 space-y-6">
+                        <div class="flex justify-between">
+                            <h2 class="text-3xl font-black text-gray-800 uppercase italic">${p.name}</h2>
+                            <p class="text-2xl font-black text-red-900">₹${p.price.toLocaleString()}</p>
+                        </div>
+                        <p class="text-gray-600 text-sm">${p.desc}</p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-blue-50 p-4 rounded-2xl">
+                                <h4 class="text-blue-900 font-black text-[10px] uppercase"><i class="fa fa-bowl-food"></i> Food</h4>
+                                <p class="text-[11px] text-blue-700 mt-1">${p.food}</p>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-2xl">
+                                <h4 class="text-green-900 font-black text-[10px] uppercase"><i class="fa fa-dumbbell"></i> Training</h4>
+                                <p class="text-[11px] text-green-700 mt-1">${p.training}</p>
+                            </div>
+                        </div>
+                        <button onclick="addToCart(${p.id})" class="w-full bg-red-900 text-white py-4 rounded-2xl font-black shadow-xl hover:bg-black transition uppercase">Add to Cart</button>
+                    </div>
+                </div>
+            `;
+            window.scrollTo(0, 0);
+        }
+
+        function goHome() {
+            document.getElementById('contentArea').classList.remove('hidden');
+            document.getElementById('sidebar').classList.remove('hidden');
+            document.getElementById('detailsPage').classList.add('hidden');
+        }
+
+        function addToCart(id) {
+            cart.push(allPets.find(p => p.id === id));
+            updateCart();
+            alert("வண்டியில் சேர்க்கப்பட்டது!");
+        }
+
+        function updateCart() {
+            document.getElementById('cartCount').innerText = cart.length;
+            let total = 0;
+            document.getElementById('cartItems').innerHTML = cart.map(i => {
+                total += i.price;
+                return `<div class="flex justify-between bg-gray-50 p-2 rounded text-xs border"><span>${i.name}</span><b>₹${i.price}</b></div>`;
+            }).join('');
+            document.getElementById('totalPrice').innerText = `₹${total.toLocaleString()}`;
+        }
+
+        function checkout() {
+            if (cart.length === 0) return;
+            let total = 0; cart.forEach(i => total += i.price);
+            document.getElementById('payAmount').innerText = `₹${total.toLocaleString()}`;
+            const upiLink = `upi://pay?pa=${MY_UPI_ID}&pn=PetZonTN&am=${total}&cu=INR`;
+            document.getElementById('upiQRCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
+            document.getElementById('upiPayBtn').href = upiLink;
+            document.getElementById('paymentModal').classList.remove('hidden');
+        }
+
+        function closePayment() { document.getElementById('paymentModal').classList.add('hidden'); }
+        function toggleCart() { document.getElementById('cartSidebar').classList.toggle('translate-x-full'); }
+        function filterCategory(cat) {
+            goHome();
+            displayItems(cat === 'All' ? allPets : allPets.filter(p => p.type === cat));
+        }
+
+        displayItems(allPets);
+    </script>
+</body>
+
+</html>
